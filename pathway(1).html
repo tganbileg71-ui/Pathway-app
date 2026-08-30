@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pathway — Plan your future</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --card2:#f0f2f9; --text:#16182a; --muted:#6b7280;
+    --border:#e6e8f2; --accent:#6d5ef4; --accent2:#8b7bfb; --accent-soft:#eeeafe;
+    --good:#16a34a; --good-soft:#e6f6ec; --warn:#b45309; --warn-soft:#fdf1e1; --bad:#dc2626; --bad-soft:#fdeaea;
+    --shadow:0 8px 30px rgba(30,30,80,.08); --radius:20px; --nav-h:64px;
+  }
+  [data-theme="dark"]{
+    --bg:#0e1019; --card:#171a26; --card2:#1f2331; --text:#f0f1f8; --muted:#9aa0b4;
+    --border:#262b3d; --accent:#8b7bff; --accent2:#a89bff; --accent-soft:#221f3f;
+    --good:#34d399; --good-soft:#12362a; --warn:#fbbf24; --warn-soft:#3a2f16; --bad:#f87171; --bad-soft:#3a1c1c;
+    --shadow:0 8px 30px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;transition:background .3s,color .3s;min-height:100vh}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+
+  #onboarding{display:none;padding:28px 20px calc(var(--nav-h) + 30px)}
+  #onboarding.active{display:block}
+  .brand{font-size:24px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+  .brand .dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#3ec6ff)}
+  .ob-header{margin-bottom:22px}
+  .ob-header h1{font-size:26px;font-weight:800;letter-spacing:-.8px;margin:18px 0 6px}
+  .ob-header p{color:var(--muted);margin:0;font-size:15px}
+  .progress{height:6px;background:var(--card2);border-radius:99px;overflow:hidden;margin:16px 0 22px}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#3ec6ff);border-radius:99px;transition:width .4s}
+  .ob-step{display:none}
+  .ob-step.active{display:block;animation:fade .35s}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .ob-step h2{font-size:19px;font-weight:700;margin:0 0 4px}
+  .ob-step .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .field label .opt{color:var(--muted);font-weight:400}
+  input,select,textarea{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:14px;background:var(--card);color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:border .2s}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1.5px solid var(--border);background:var(--card);color:var(--text);padding:9px 13px;border-radius:99px;font-size:13px;cursor:pointer;transition:.15s;user-select:none}
+  .chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;border-radius:14px;font-size:15px;font-weight:700;padding:14px 18px;font-family:inherit;transition:.15s}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;width:100%;box-shadow:0 10px 24px rgba(124,58,237,.3)}
+  .btn-primary:active{transform:scale(.98)}
+  .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border)}
+  .btn-sm{padding:8px 12px;font-size:13px;border-radius:10px}
+  .btn-row{display:flex;gap:10px}
+  .btn-row .btn{flex:1}
+  .skip{margin-top:12px;text-align:center;color:var(--muted);font-size:14px;background:none;border:none;cursor:pointer;text-decoration:underline}
+
+  .view{display:none;padding:22px 18px 30px;animation:fade .3s}
+  .view.active{display:block}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .greet{font-size:13px;color:var(--muted)}
+  .greet b{color:var(--text);font-size:17px;display:block;margin-top:2px}
+  .icon-btn{width:40px;height:40px;border-radius:12px;background:var(--card);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text);flex-shrink:0}
+  .section{font-size:18px;font-weight:800;letter-spacing:-.3px;margin:24px 0 12px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .metric{padding:16px}
+  .metric .lbl{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .metric .val{font-size:20px;font-weight:800;margin-top:6px;letter-spacing:-.4px}
+  .metric .sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .metric.good .val{color:var(--good)}
+  .metric.bad .val{color:var(--bad)}
+  .metric.warn .val{color:var(--warn)}
+  .hero-goal{background:linear-gradient(135deg,var(--accent),#7c3aed,#3ec6ff);color:#fff;border:none;border-radius:var(--radius);padding:22px;box-shadow:0 14px 34px rgba(124,58,237,.35);margin-bottom:16px}
+  .hero-goal .tag{font-size:12px;font-weight:700;opacity:.9;letter-spacing:.5px;text-transform:uppercase}
+  .hero-goal h3{font-size:22px;font-weight:800;margin:8px 0 2px;letter-spacing:-.5px}
+  .hero-goal .est{font-size:14px;opacity:.92}
+  .bar{height:10px;background:rgba(255,255,255,.28);border-radius:99px;overflow:hidden;margin:16px 0 8px}
+  .bar i{display:block;height:100%;background:#fff;border-radius:99px;transition:width .6s}
+  .hero-goal .meta{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+  .kpi-msg{margin-top:12px;font-size:13px;font-weight:600;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.18)}
+  .hero-btn{margin-top:12px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;width:100%}
+
+  .health-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:14px}
+  .health-row:last-child{border-bottom:none}
+  .health-row .hl{color:var(--muted)}
+  .health-row .hv{font-weight:700}
+  .health-badge{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:13px;padding:8px 12px;border-radius:12px;margin-top:6px}
+  .health-badge.ok{background:var(--good-soft);color:var(--good)}
+  .health-badge.warn{background:var(--warn-soft);color:var(--warn)}
+  .health-badge.bad{background:var(--bad-soft);color:var(--bad)}
+
+  details.assum{border-top:1px solid var(--border);margin-top:12px;padding-top:10px}
+  details.assum summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent);list-style:none}
+  details.assum summary:before{content:"▸ "; }
+  details.assum[open] summary:before{content:"▾ ";}
+  .assum-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:12.5px}
+  .assum-grid div{background:var(--card2);border-radius:10px;padding:8px 10px}
+  .assum-grid .k{color:var(--muted);font-size:11px}
+  .assum-grid .v{font-weight:700;margin-top:2px}
+
+  .tl{position:relative;padding-left:26px;margin-top:6px}
+  .tl:before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--accent),#3ec6ff);border-radius:2px}
+  .tl-item{position:relative;margin-bottom:16px;cursor:pointer}
+  .tl-item:before{content:"";position:absolute;left:-22px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--card);border:2.5px solid var(--accent)}
+  .tl-item.done:before{background:var(--good);border-color:var(--good)}
+  .tl-item .tl-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 15px}
+  .tl-item .age{font-size:12px;color:var(--accent);font-weight:800}
+  .tl-item .name{font-size:15px;font-weight:700;margin:2px 0}
+  .tl-item .amt{font-size:13px;color:var(--muted)}
+  .tl-item.done .tl-card{opacity:.8}
+  .tl-item.done .name{color:var(--good)}
+
+  .chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .chart-wrap h4{margin:0 0 4px;font-size:15px;font-weight:700}
+  .chart-wrap .cap{font-size:12px;color:var(--muted);margin:0 0 14px}
+  canvas{display:block;width:100%;height:auto}
+  .legend{display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  nav{bottom:0;position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:calc(var(--nav-h) + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--border);display:flex;z-index:50;backdrop-filter:blur(10px)}
+  nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);text-decoration:none;font-size:10px;font-weight:600;cursor:pointer}
+  nav a .cnt{font-size:20px;line-height:1;transition:.2s}
+  nav a.on{color:var(--accent)}
+  nav a.on .cnt{transform:translateY(-1px)}
+
+  .goal-item{display:flex;align-items:center;gap:12px;padding:4px 0;border-bottom:1px solid var(--border)}
+  .goal-item:last-child{border-bottom:none}
+  .goal-ico{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .goal-body{flex:1;min-width:0}
+  .goal-body .gname{font-weight:700;font-size:15px}
+  .goal-body .gmeta{font-size:12px;color:var(--muted);margin-top:2px}
+  .pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;display:inline-block;margin-top:8px}
+  .pill.green{background:var(--good-soft);color:var(--good)}
+  .pill.yellow{background:var(--warn-soft);color:var(--warn)}
+  .pill.red{background:var(--bad-soft);color:var(--bad)}
+  .goal-actions{display:flex;gap:6px}
+  .goal-actions .icon-btn{width:34px;height:34px}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cmp{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:14px}
+  .cmp.alt{border-color:var(--accent)}
+  .cmp h5{margin:0 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .cmp.alt h5{color:var(--accent)}
+  .cmp .big{font-size:18px;font-weight:800;margin:6px 0;letter-spacing:-.4px}
+  .cmp .det{font-size:12px;color:var(--muted)}
+  .delta{grid-column:1/-1;text-align:center;font-size:13px;font-weight:700;padding:10px;border-radius:12px}
+  .delta.up{background:var(--good-soft);color:var(--good)}
+  .delta.down{background:var(--bad-soft);color:var(--bad)}
+  .scenario{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:13px;cursor:pointer;margin-bottom:10px;transition:.15s}
+  .scenario:hover,.scenario.on{border-color:var(--accent)}
+  .scenario .s-name{font-weight:700;font-size:14px;display:flex;justify-content:space-between;gap:8px}
+  .scenario .s-desc{font-size:12px;color:var(--muted);margin-top:3px}
+  .saved-scenario{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+  .saved-scenario.on{border-color:var(--accent)}
+  .saved-scenario .ss-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .saved-scenario .ss-name{font-weight:700}
+  .saved-scenario .ss-stats{font-size:12px;color:var(--muted);margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 12px}
+  .saved-scenario .ss-actions{display:flex;gap:8px;margin-top:10px}
+
+  .chat{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+  .msg{max-width:86%;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.55;animation:fade .3s;white-space:normal}
+  .msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border-bottom-right-radius:5px}
+  .msg.bot{align-self:flex-start;background:var(--card2);color:var(--text);border-bottom-left-radius:5px}
+  .msg.bot small{display:block;margin-top:8px;font-size:11px;color:var(--muted);font-style:italic}
+  .msg.bot .calc{display:block;margin-top:6px;font-size:12px;color:var(--muted);white-space:pre-wrap}
+  .quick{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+  .quick button{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:99px;padding:8px 12px;font-size:12px;cursor:pointer}
+  .chatbar{position:sticky;bottom:calc(var(--nav-h) + 8px);display:flex;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:8px;box-shadow:var(--shadow)}
+  .chatbar input{border:none;background:transparent;flex:1}
+  .chatbar button{background:var(--accent);color:#fff;border:none;width:42px;height:42px;border-radius:12px;font-size:18px;cursor:pointer;flex-shrink:0}
+  .assistant-wrap{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;flex-direction:column;max-width:480px;margin:0 auto}
+  .assistant-wrap.open{display:flex}
+  .assistant-wrap .topbar{padding:16px 18px 0}
+  .asist-scroll{flex:1;overflow-y:auto;padding:0 18px}
+  .asist-scroll .chat{min-height:calc(100vh - 260px)}
+  .assistant-bottom{padding:10px 18px calc(16px + env(safe-area-inset-bottom))}
+  .ai-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--card2);border-radius:10px;padding:8px 10px;margin-bottom:10px}
+
+  #toast{position:fixed;bottom:calc(var(--nav-h) + 20px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:var(--bg);padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:.3s;z-index:200;max-width:90%;text-align:center}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .note{background:var(--accent-soft);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:12.5px;color:var(--muted);line-height:1.5}
+
+  .modal{position:fixed;inset:0;background:rgba(10,10,20,.5);z-index:150;display:none;align-items:flex-end;justify-content:center}
+  .modal.open{display:flex}
+  .modal-panel{background:var(--card);width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:22px;max-height:88vh;overflow-y:auto;animation:slideup .3s}
+  @keyframes slideup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .assume-tab{display:flex;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:12px}
+  .assume-tab button{flex:1;border:none;background:transparent;color:var(--muted);padding:9px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer}
+  .assume-tab button.on{background:var(--card);color:var(--accent);box-shadow:var(--shadow)}
+  .pill-note{font-size:11px;color:var(--muted);margin-top:6px}
+  .country{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:10px}
+  .country .flag{font-size:24px}
+  .country .c-name{font-weight:700}
+  .country .c-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .country .c-impact{font-size:12px;font-weight:700;margin-top:3px}
+  .seg{display:flex;gap:8px}
+  .seg button{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .seg button.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .inline-flex{display:flex;gap:10px}.inline-flex>div{flex:1}
+  .linkrow{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--border);cursor:pointer}
+  .linkrow:last-child{border-bottom:none}
+  .linkrow .lbl{font-weight:600}
+  .linkrow .val{color:var(--muted);font-size:13px}
+  .toggle{width:46px;height:26px;border-radius:99px;background:var(--card2);position:relative;transition:.2s;border:1px solid var(--border);cursor:pointer}
+  .toggle:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle.on{background:var(--accent)}
+  .toggle.on:after{left:24px}
+  .ttable{width:100%;border-collapse:collapse;font-size:13px}
+  .ttable th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px;padding:6px 4px;border-bottom:1px solid var(--border)}
+  .ttable td{padding:8px 4px;border-bottom:1px solid var(--border)}
+  .ttable tr:last-child td{border-bottom:none}
+  .mini-badge{font-size:10px;background:var(--card2);padding:2px 7px;border-radius:99px;color:var(--muted);margin-left:6px;font-weight:600}
+  h2.empty{text-align:center;color:var(--muted);font-weight:600;font-size:15px;padding:30px 10px}
+  .no-wrap{white-space:nowrap}
+  #splash{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .4s}
+  #splash.gone{opacity:0;pointer-events:none}
+  #splash .dot{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#3ec6ff);animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.6}}
+  #splash p{color:var(--muted);font-size:13px}
+  .plan-card{border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;background:var(--card)}
+  .plan-card.popular{border-color:var(--accent);box-shadow:var(--shadow)}
+  .plan-card .p-name{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
+  .plan-card .p-price{font-size:26px;font-weight:800;margin:6px 0 0;letter-spacing:-.5px}
+  .plan-card .p-period{color:var(--muted);font-size:12px}
+  .plan-card .p-feat{list-style:none;margin:12px 0 0;padding:0}
+  .plan-card .p-feat li{font-size:13px;color:var(--text);margin:6px 0;display:flex;gap:7px;align-items:flex-start}
+  .plan-tag{position:absolute;top:-10px;right:14px;font-size:10px;font-weight:800;background:linear-gradient(135deg,var(--accent),#3ec6ff);color:#fff;padding:3px 9px;border-radius:99px;box-shadow:var(--shadow)}
+  .pro-badge{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:99px;letter-spacing:.4px;margin-top:3px;display:inline-block}
+  .current-plan{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:6px 11px;border-radius:99px;margin-bottom:6px}
+  .current-plan.free{background:var(--card2);color:var(--muted)}
+  .current-plan.premium{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff}
+  .paywall-lock{display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:14px;padding:12px;margin-bottom:10px;font-size:13px}
+  .demo-note{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--muted);background:var(--card2);border-radius:10px;padding:9px 11px;margin:12px 0}
+  .feature-locked{filter:grayscale(1);opacity:.6;pointer-events:none}
+</style>
+</head>
+<body data-theme="light">
+<div id="splash"><div class="dot"></div><p>Loading your Pathway…</p></div>
+<div id="app">
+
+  <section id="onboarding">
+    <div class="ob-header">
+      <div class="brand"><span class="dot"></span> Pathway</div>
+      <h1>Let's map your future</h1>
+      <p>We'll estimate a path to your goals based on your money and plans. No bank connections — just clear projections.</p>
+    </div>
+    <div class="progress"><i id="obprogress" style="width:8%"></i></div>
+
+    <div class="ob-step active">
+      <h2>Where do you live?</h2>
+      <p class="sub">This helps us size up your costs.</p>
+      <div class="field"><label>Current age</label><input type="number" id="ob-age" min="16" max="80" placeholder="e.g. 21"></div>
+      <div class="field"><label>Current country</label><input type="text" id="ob-country" placeholder="e.g. United States"></div>
+      <div class="field"><label>City <span class="opt">(optional)</span></label><input type="text" id="ob-city" placeholder="e.g. Austin"></div>
+    </div>
+
+    <div class="ob-step">
+      <h2>Your money in / money out</h2>
+      <p class="sub">Monthly figures, in your base currency. Estimates are fine.</p>
+      <div class="field"><label>Monthly income</label><input type="number" id="ob-income" placeholder="e.g. 3000"></div>
+      <div class="field"><label>Monthly expenses</label><input type="number" id="ob-expenses" placeholder="e.g. 2200"></div>
+      <div class="field"><label>Current savings</label><input type="number" id="ob-savings" placeholder="e.g. 2000"></div>
+      <div class="field"><label>Planned monthly contribution</label><input type="number" id="ob-contrib" placeholder="e.g. 500"></div>
+      <p class="pill-note">Your contribution is the exact amount you plan to save or invest each month.</p>
+    </div>
+
+    <div class="ob-step">
+      <h2>Occupation</h2>
+      <p class="sub">Tell us where you are in life.</p>
+      <div class="field"><label>Status</label>
+        <select id="ob-status">
+          <option value="student">Student</option><option value="employed">Employed</option>
+          <option value="self-employed">Self-employed / freelancer</option><option value="unemployed">Looking for work</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Desired career <span class="opt">(optional)</span></label><input type="text" id="ob-career" placeholder="e.g. Software engineer"></div>
+    </div>
+
+    <div class="ob-step">
+      <h2>Where could you go?</h2>
+      <p class="sub">Countries you may move to. Pick any (optional).</p>
+      <div class="chip-row" id="ob-countries"></div>
+    </div>
+
+    <div class="ob-step">
+      <h2>Your big goals</h2>
+      <p class="sub">Pick what matters (optional — you can add more later).</p>
+      <div class="chip-row" id="ob-goals"></div>
+    </div>
+
+    <div class="ob-step">
+      <h2>Your north star</h2>
+      <p class="sub">The target you want to hit.</p>
+      <div class="field"><label>Target amount</label><input type="number" id="ob-target" placeholder="e.g. 100000"></div>
+      <div class="field"><label>Target age</label><input type="number" id="ob-target-age" placeholder="e.g. 30"></div>
+      <div class="note">Pathway provides educational financial planning tools and estimates. Projections are based on assumptions and are not guaranteed. Pathway does not provide personalized financial, investment, tax, or legal advice.</div>
+    </div>
+
+    <div class="btn-row" style="margin-top:22px">
+      <button class="btn btn-ghost" id="ob-back" style="display:none">← Back</button>
+      <button class="btn btn-primary" id="ob-next">Continue →</button>
+      <button class="btn btn-primary" id="ob-finish" style="display:none">Build my Pathway ✨</button>
+    </div>
+    <button class="skip" id="ob-skip" style="display:none">Skip for now</button>
+  </section>
+
+  <div id="main" style="display:none">
+    <main>
+      <div class="view active" id="view-home">
+        <div class="topbar">
+          <div class="greet">Welcome back<b id="home-greet">Your Pathway</b><span class="pro-badge" id="home-pro-badge" style="display:none">PRO</span></div>
+          <div style="display:flex;gap:8px">
+            <button class="icon-btn" onclick="openEditGoal()" title="Edit main goal">🎯</button>
+            <button class="icon-btn" id="theme-toggle">🌙</button>
+          </div>
+        </div>
+        <div class="hero-goal" id="home-hero"></div>
+        <div class="section">Financial snapshot</div>
+        <div class="grid2" id="home-snapshot"></div>
+
+        <div class="section">Financial health</div>
+        <div class="card" id="home-health"></div>
+
+        <div class="section">Projection at a glance</div>
+        <div class="chart-wrap"><h4>Portfolio over time</h4><p class="cap">Based on your assumptions — estimates, not guarantees.</p>
+          <canvas id="home-chart" width="440" height="170"></canvas>
+          <div class="legend"><span><i style="background:var(--accent)"></i>Current path</span><span><i style="background:var(--muted)"></i>Alternative</span></div>
+          <details class="assum"><summary>How we calculate this</summary>
+            <div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px">
+              Portfolio value ≈ starting savings × investment growth, plus your planned monthly contribution each month, compounded monthly.<br>
+              <b>We only add your planned contribution</b> — not the leftover surplus, unless you turn on "grow my contribution". See full assumptions below.
+            </div>
+            <div class="assum-grid" id="assum-grid"></div>
+          </details>
+        </div>
+
+        <div class="section">Quick scenarios</div>
+        <div id="home-quick-scenarios"></div>
+      </div>
+
+      <div class="view" id="view-roadmap">
+        <div class="topbar"><div class="greet">Future Roadmap<b>Your milestones</b></div>
+          <button class="icon-btn" onclick="openAssistant('Which milestones should I focus on first?')">✨</button></div>
+        <div class="note" style="margin-bottom:16px">📌 Timeline updates automatically from your income, expenses, savings, contribution and return assumptions. All projections are <b>estimates</b>.</div>
+        <div class="tl" id="roadmap-list"></div>
+      </div>
+
+      <div class="view" id="view-scenarios">
+        <div class="topbar"><div class="greet">Scenario Lab<b>What if…?</b></div></div>
+        <div class="seg" style="margin-bottom:16px">
+          <button class="on" data-seg="presets" onclick="segShow('presets')">Quick</button>
+          <button data-seg="custom" onclick="segShow('custom')">Custom</button>
+          <button data-seg="compare" onclick="segShow('compare')">Compare</button>
+        </div>
+        <div id="seg-presets"></div>
+        <div id="seg-custom" style="display:none"></div>
+        <div id="seg-compare" style="display:none"></div>
+      </div>
+
+      <div class="view" id="view-goals">
+        <div class="topbar"><div class="greet">Life goals<b>What you're building toward</b></div></div>
+        <div id="goals-list"></div>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="openGoalModal()">＋ Add a goal</button>
+      </div>
+
+      <div class="view" id="view-profile">
+        <div class="topbar"><div class="greet">Your Profile<b>Settings & assumptions</b></div></div>
+        <div class="card" style="margin-bottom:14px" id="premium-card"></div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="linkrow" onclick="openProfileModal()"><div><div class="lbl">Personal & finances</div><div class="val">Age, income, expenses, savings</div></div><div style="color:var(--muted)">›</div></div>
+          <div class="linkrow" onclick="openEditGoal()"><div><div class="lbl">Main goal</div><div class="val" id="main-goal-val">—</div></div><div style="color:var(--muted)">›</div></div>
+          <div class="linkrow" onclick="openAssumptions()"><div><div class="lbl">Assumptions</div><div class="val" id="assume-val">Moderate</div></div><div style="color:var(--muted)">›</div></div>
+          <div class="linkrow"><div><div class="lbl">Invest more as income grows</div><div class="val">Optional growth link</div></div><div class="toggle" id="grow-toggle" onclick="toggleGrow()"></div></div>
+          <div class="linkrow"><div><div class="lbl">Display currency</div><div class="val" id="cur-val">USD</div></div>
+            <select style="width:auto;padding:8px 10px;font-size:13px" id="cur-select" onchange="setCurrency(this.value)">
+              <option value="USD">$ USD</option><option value="MNT">₮ MNT</option><option value="AUD">A$ AUD</option>
+              <option value="CAD">C$ CAD</option><option value="GBP">£ GBP</option><option value="EUR">€ EUR</option>
+            </select></div>
+          <div class="linkrow" onclick="openCountries()"><div><div class="lbl">Countries & relocation</div><div class="val">Compare cost of living</div></div><div style="color:var(--muted)">›</div></div>
+          <div class="linkrow" onclick="exportReport()"><div><div class="lbl">📤 Download my plan</div><div class="val">Export a report</div></div><div style="color:var(--muted)">›</div></div>
+          <div class="linkrow" onclick="billingSetup()"><div><div class="lbl">💳 Billing / Go live</div><div class="val">Connect your payments server</div></div><div style="color:var(--muted)">›</div></div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="linkrow"><div class="lbl">Dark mode</div><div class="toggle" id="prof-theme" onclick="toggleTheme()"></div></div>
+          <div class="linkrow" onclick="resetAll()"><div class="lbl" style="color:var(--bad)">Reset & start over</div></div>
+        </div>
+        <div class="card">
+          <div class="linkrow" onclick="openAssistant()"><div><div class="lbl">🧠 Planning Assistant</div><div class="val">Ask about your goals & scenarios</div></div><div style="color:var(--muted)">›</div></div>
+        </div>
+        <div class="note" style="margin-top:14px">"Pathway provides educational financial planning tools and estimates. Projections are based on assumptions and are not guaranteed. Pathway does not provide personalized financial, investment, tax, or legal advice."</div>
+      </div>
+    </main>
+
+    <nav>
+      <a data-v="home" class="on"><span class="cnt">🏠</span>Home</a>
+      <a data-v="roadmap"><span class="cnt">📈</span>Roadmap</a>
+      <a data-v="scenarios"><span class="cnt">🔀</span>Scenarios</a>
+      <a data-v="goals"><span class="cnt">🎯</span>Goals</a>
+      <a data-v="profile"><span class="cnt">👤</span>Profile</a>
+    </nav>
+  </div>
+
+  <div class="assistant-wrap" id="assistant">
+    <div class="topbar"><div class="greet">Planning Assistant<b>Calculated from your data</b></div><button class="icon-btn" onclick="closeAssistant()">✕</button></div>
+    <div class="asist-scroll" id="assistant-scroll">
+      <div class="ai-note">🧠 <span>No AI model connected — answers are computed from your real data by the projection engine.</span></div>
+      <div class="note" style="margin-bottom:10px">Try "Can I reach my goal by 30?", "How much more do I need?", "What if my income increases?", "Which scenario is fastest?"</div>
+      <div class="chat" id="assistant-chat"></div>
+    </div>
+    <div class="assistant-bottom">
+      <div class="quick" id="assistant-quick"></div>
+      <div class="chatbar"><input id="assistant-input" placeholder="Ask about your plan…" onkeydown="if(event.key==='Enter')askAssistant()"><button onclick="askAssistant()">➤</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-goal"><div class="modal-panel" id="goal-modal-body"></div></div>
+  <div class="modal" id="modal-profile"><div class="modal-panel" id="profile-modal-body"></div></div>
+  <div class="modal" id="modal-assumptions"><div class="modal-panel" id="assumptions-modal-body"></div></div>
+  <div class="modal" id="modal-countries"><div class="modal-panel" id="countries-modal-body"></div></div>
+  <div class="modal" id="modal-target"><div class="modal-panel" id="target-modal-body"></div></div>
+  <div class="modal" id="modal-relocate"><div class="modal-panel" id="relocate-modal-body"></div></div>
+  <div class="modal" id="modal-plan"><div class="modal-panel" id="plan-modal-body"></div></div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   PATHWAY — improved financial planning app
+   Savings model: portfolio += ONLY the planned monthly contribution.
+   ============================================================ */
+const $=s=>document.querySelector(s);
+const RATES={USD:1,MNT:0.00029,AUD:0.66,CAD:0.74,GBP:1.27,EUR:1.08};
+const SYMBOLS={USD:'$',MNT:'₮',AUD:'A$',CAD:'C$',GBP:'£',EUR:'€'};
+function curCode(){return state.currency||'USD';}
+function money(v){ // v is in base currency (USD)
+  const c=curCode(), vc=(v||0)/(RATES[c]||1);
+  try{return new Intl.NumberFormat('en-US',{style:'currency',currency:c,maximumFractionDigits:0}).format(vc);}
+  catch(e){return (SYMBOLS[c]||c)+' '+Math.round(vc).toLocaleString('en-US');}
+}
+function shortNum(v){const vc=v/(RATES[curCode()]||1);return vc>=1e6?(vc/1e6).toFixed(1)+'M':vc>=1e3?(vc/1e3).toFixed(0)+'K':Math.round(vc).toFixed(0);}
+const dte=dt=>dt.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+
+/* ---------- country sample data (local currency; converted to USD via RATES) ---------- */
+const COUNTRIES={
+  "United States":{currency:"USD",cost:2600,salary:4200,flag:"🇺🇸"},
+  "Canada":{currency:"CAD",cost:2300,salary:3800,flag:"🇨🇦"},
+  "United Kingdom":{currency:"GBP",cost:2200,salary:3600,flag:"🇬🇧"},
+  "Australia":{currency:"AUD",cost:2400,salary:4100,flag:"🇦🇺"},
+  "Germany":{currency:"EUR",cost:2000,salary:3400,flag:"🇩🇪"},
+  "Netherlands":{currency:"EUR",cost:2200,salary:3600,flag:"🇳🇱"},
+  "Singapore":{currency:"SGD",cost:2600,salary:4300,flag:"🇸🇬"},
+  "Japan":{currency:"JPY",cost:1900,salary:3300,flag:"🇯🇵"},
+  "Portugal":{currency:"EUR",cost:1500,salary:2200,flag:"🇵🇹"},
+  "Spain":{currency:"EUR",cost:1800,salary:2500,flag:"🇪🇸"}
+};
+const COUNTRY_RATES={USD:1,CAD:0.74,GBP:1.27,AUD:0.66,EUR:1.08,SGD:0.74,JPY:0.0067};
+function countryUsd(c,field){return (COUNTRIES[c]?COUNTRIES[c][field]:0)*(COUNTRY_RATES[COUNTRIES[c]&&COUNTRIES[c].currency]||1);}
+
+/* ---------- assumption presets ---------- */
+const ASSUMPTIONS={
+  conservative:{return:.04,incomeGrow:.02,expenseGrow:.02,inflation:.02},
+  moderate:{return:.07,incomeGrow:.03,expenseGrow:.025,inflation:.025},
+  optimistic:{return:.10,incomeGrow:.05,expenseGrow:.03,inflation:.03}
+};
+
+/* ---------- default state ---------- */
+const defGoals=[
+  {id:"g1",name:"Emergency fund",cost:6000,reach:23,priority:"High",icon:"🛟"},
+  {id:"g2",name:"Study abroad / travel",cost:8000,reach:25,priority:"Medium",icon:"✈️"},
+  {id:"g3",name:"Buy a car",cost:15000,reach:27,priority:"Medium",icon:"🚗"},
+  {id:"g4",name:"Reach $50,000",cost:50000,reach:29,priority:"High",icon:"🎯"},
+  {id:"g5",name:"Home down payment",cost:40000,reach:30,priority:"Medium",icon:"🏠"}
+];
+const defState={
+  theme:"dark",onboarded:false,currency:"USD",growContrib:false,savedScenarios:[],plan:"free",planExpiry:null,
+  profile:{age:21,country:"United States",city:"",income:3000,expenses:2200,savings:2000,contrib:500,status:"student",career:""},
+  assumptions:"moderate",customAssumptions:null,
+  target:{name:"Reach $100,000",amount:100000,age:30},
+  goals:defGoals,interestCountries:[]
+};
+function load(){try{const r=localStorage.getItem('pathway_state');return r?JSON.parse(r):null;}catch(e){return null;}}
+let state=load()||JSON.parse(JSON.stringify(defState));
+function migrate(s){
+  if(!s)return s;
+  if(s.currency==null)s.currency='USD';
+  if(s.growContrib==null)s.growContrib=false;
+  if(!Array.isArray(s.savedScenarios))s.savedScenarios=[];
+  if(s.plan==null)s.plan='free';
+  if(s.planExpiry==null)s.planExpiry=null;
+  return s;
+}
+state=migrate(state);
+function persist(){try{localStorage.setItem('pathway_state',JSON.stringify(state));}catch(e){}}
+
+/* ============================================================
+   MONETIZATION — Premium subscription (demo checkout)
+   Set BILLING.mode='live' + provider/apiKey to connect a real
+   provider (Stripe / PayPal / Paddle) later.
+   ============================================================ */
+const PLANS=[
+  {id:'premium',name:'Premium Monthly',price:4.99,period:'per month',tag:'Most popular',
+   feat:['Save up to 10 scenarios (Free = 3)','All countries & relocation details','Download your plan as a report','AI action plan','Priority support']},
+  {id:'premium_yearly',name:'Premium Yearly',price:39.99,period:'per year',tag:'Best value',
+   feat:['Everything in Premium Monthly','~2 months free','Always includes new features']},
+  {id:'founder',name:'Founder Lifetime',price:99,period:'one-time',tag:'Supporter',
+   feat:['Everything in Premium','Funds future features','Early access to new tools']}
+];
+const BILLING={mode:localStorage.getItem('pathway_billing_mode')||'demo',provider:localStorage.getItem('pathway_billing_provider')||'paypal',apiKey:null,baseUrl:localStorage.getItem('pathway_api_base')||'http://localhost:8787'};
+function isPremium(){
+  const p=state.plan;
+  if(p==='lifetime')return true;
+  if(p==='premium'){
+    if(state.planExpiry&&Date.now()>state.planExpiry){state.plan='free';state.planExpiry=null;persist();return false;}
+    return true;
+  }
+  return false;
+}
+function planName(){return state.plan==='lifetime'?'Founder':state.plan==='premium'?'Premium':'Free';}
+function openPricing(){
+  const p=isPremium();
+  let body=`<h3 style="margin:0 0 6px">${p?'Your plan':'Go Premium'}</h3>
+    <div class="current-plan ${p?'premium':'free'}">${p?'🏆 '+planName()+' plan active':'⚡ Free plan'}</div>`;
+  if(p)body+=`<div class="note" style="margin:10px 0 14px">You're on the <b>${planName()}</b> plan. ${state.planExpiry?'Demo renewal date applies.':'One-time — no renewal.'}</div>`;
+  else body+=`<p style="color:var(--muted);font-size:13px;margin:6px 0 14px">Unlock more of Pathway and support its development.</p>`;
+  PLANS.forEach(pl=>{
+    body+=`<div class="plan-card ${pl.tag==='Most popular'?'popular':''}">
+      ${pl.tag?`<span class="plan-tag">${pl.tag}</span>`:''}
+      <div class="p-name">${pl.name}</div>
+      <div class="p-price">${money(pl.price)}<span class="p-period"> ${pl.period}</span></div>
+      <ul class="p-feat">${pl.feat.map(f=>`<li><span style="color:var(--accent)">✓</span> ${f}</li>`).join('')}</ul>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="choosePlan('${pl.id}')">${p?'Switch plan':'Choose '+pl.name}</button>
+    </div>`;
+  });
+  body+=`<div class="demo-note">🔒 <span>Demo checkout — no real payment is processed. To go live, connect a provider in the <b>BILLING</b> config.</span></div>
+    ${p?`<button class="btn btn-ghost" style="width:100%;margin-top:4px" onclick="cancelPlan()">Cancel subscription</button>`:''}`;
+  $('#plan-modal-body').innerHTML=body;
+  openModal('modal-plan');
+}
+function choosePlan(id){
+  const pl=PLANS.find(x=>x.id===id);if(!pl)return;
+  if(BILLING.mode==='live'){startCheckout(id,pl.name);return;}
+  state.plan = (pl.id==='premium_yearly'||pl.id==='premium')?'premium':'lifetime';
+  state.planExpiry = pl.id==='premium'?new Date(Date.now()+30*24*3600*1000).getTime():pl.id==='premium_yearly'?new Date(Date.now()+365*24*3600*1000).getTime():null;
+  persist();toast('Subscribed to '+pl.name+' (demo)');renderProfile();openPricing();
+}
+function startCheckout(id,name){
+  toast('Opening secure checkout…');
+  fetch(BILLING.baseUrl+'/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({planId:id,email:(state.profile&&state.profile.email)||undefined})})
+  .then(r=>r.json()).then(d=>{
+    if(d&&d.url){window.location.href=d.url;}
+    else toast('Checkout failed: '+((d&&(d.error||d.hint))||'unknown error'));
+  }).catch(()=>toast('Could not reach the checkout server at '+BILLING.baseUrl));
+}
+function onReturnFromCheckout(){
+  if(!window.URLSearchParams||!window.location)return;
+  var p=new URLSearchParams(window.location.search);
+  if(p.get('checkout')!=='success')return;
+  var subId=p.get('subscription_id');
+  var orderId=p.get('token')||p.get('order_id');
+  if(!subId&&!orderId)return;
+  var q=subId?('subscription_id='+encodeURIComponent(subId)):('order_id='+encodeURIComponent(orderId));
+  fetch(BILLING.baseUrl+'/api/capture?'+q)
+    .then(r=>r.json()).then(d=>{
+      if(d&&d.completed){
+        state.plan=(d.planId==='founder')?'lifetime':'premium';
+        state.planExpiry=null;persist();renderProfile();
+        window.history.replaceState({},'',window.location.pathname);
+        toast('🎉 Premium activated!');
+      } else { toast('Payment was not completed.'); }
+    }).catch(()=>toast('Could not confirm payment with the server.'));
+}
+function setLiveMode(url){
+  localStorage.setItem('pathway_billing_mode','live');
+  localStorage.setItem('pathway_billing_provider','paypal');
+  if(url)localStorage.setItem('pathway_api_base',url.replace(/\/+$/,''));
+  BILLING.mode='live';BILLING.provider='paypal';if(url)BILLING.baseUrl=url.replace(/\/+$/,'');
+  toast('Live mode enabled'+(url?' for '+url:''));
+}
+function billingSetup(){
+  var url=null;
+  if(window.prompt)url=prompt('Checkout server URL (https://your-server.com):',BILLING.baseUrl);
+  if(url&&String(url).trim()){setLiveMode(String(url).trim());openPricing();}
+  else if(url!==null)toast('Live mode stays on demo checkout.');
+}
+function cancelPlan(){state.plan='free';state.planExpiry=null;persist();renderProfile();openPricing();toast('Subscription cancelled (demo)');}
+function exportReport(){
+  if(!isPremium()){toast('Export is a Premium feature');openPricing();return;}
+  const p=state.profile,base=project({}),as=getAssumptions();
+  const reach=base.reachIndex!==null?'age '+Math.floor(p.age+base.reachIndex/12):'beyond age '+p.age;
+  const hc=healthCheck();
+  const txt=['PATHWAY — MY PLAN','Generated: '+new Date().toLocaleString(),'',
+    'Goal: '+state.target.name+' ('+money(state.target.amount)+' by age '+state.target.age+')',
+    'Profile: age '+p.age+', '+p.country+', income '+money(p.income)+'/mo, expenses '+money(p.expenses)+'/mo',
+    'Savings '+money(p.savings)+', planned contribution '+money(p.contrib)+'/mo',
+    'Assumptions: return '+(as.return*100).toFixed(1)+'%, income growth '+(as.incomeGrow*100).toFixed(1)+'%, inflation '+(as.inflation*100).toFixed(1)+'%',
+    'Estimated goal reach: ~'+reach,
+    'Required monthly to hit goal: '+money(monthlyToReach(state.target.amount,state.target.age)),
+    'Financial health: '+(hc.level==='ok'?'Sustainable':hc.level==='warn'?'Tight':'Unsustainable'),
+    '', 'Goals:', ...state.goals.map(g=>' - '+g.name+' ('+money(g.cost)+' by age '+g.reach+')'),
+    '', 'Estimates only — not financial advice.'].join('\n');
+  try{
+    const blob=new Blob([txt],{type:'text/plain'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pathway-plan.txt';a.click();
+    toast('Plan exported');
+  }catch(e){toast('Export not available in this view');}
+}
+function premiumInsight(){
+  const p=state.profile,as=getAssumptions();
+  const req=monthlyToReach(state.target.amount,state.target.age);
+  const hc=healthCheck();const gap=Math.max(0,req-p.contrib);
+  const reach=reachableToAge();
+  let out=[`<b>Action plan</b> to reach <b>${money(state.target.amount)}</b> by age ${state.target.age}:`];
+  if(gap<=0)out.push('✅ You already plan to contribute enough — keep it consistent.');
+  else{
+    out.push(`⚠ Raise your contribution by ~<b>${money(gap)}/mo</b>.`);
+    if(hc.surplus>0)out.push(`Your surplus is ${money(hc.surplus)}/mo, so this is ${hc.surplus>=gap?'achievable now':'a stretch — consider cutting costs or raising income'}.`);
+    else out.push('You currently have no surplus — raise income or cut expenses first.');
+  }
+  out.push('Current plan reaches it '+(reach?'~age '+Math.floor(reach):'beyond age '+state.target.age)+'.');
+  const best=bestScenario();
+  if(best)out.push('Fastest saved path: <b>'+esc(best.label)+'</b>'+(best.reachAge?' (reach ~age '+Math.floor(best.reachAge)+')':''));
+  out.push('Estimate based on current assumptions.');
+  return out.join('<br>');
+}
+function reachableToAge(){const b=project({});return b.reachIndex!==null?state.profile.age+b.reachIndex/12:null;}
+function bestScenario(){
+  const cands=[{label:'Current path',adj:null},...savedScenarios.map(s=>({label:s.label,adj:s.adjustments}))];
+  let best=null;cands.forEach(c=>{const a=statsFor(c.adj);if(a.reachAge&&(!best||a.reachAge<best.reachAge))best={label:c.label,reachAge:a.reachAge};});
+  return best;
+}
+
+let activeScenario=null;   // {label, adjust}
+let savedScenarios=state.savedScenarios||[];
+let obStep=0;
+const obGoals=new Set(), obSelCountries=new Set();
+let editGoalId=null, relocateCountry=null;
+
+/* ============================================================
+   FINANCIAL ENGINE — monthly compounding
+   Each month: portfolio = portfolio*(1+r) + contribution
+   adjustments keys: incomeDelta, expenseDelta, incomeMult, expenseMult,
+                     incomeSet, expenseSet, contribDelta, contribMult,
+                     pauses:[{start,end}], assumptions
+   ============================================================ */
+function getAssumptions(){
+  if(state.assumptions==="custom"&&state.customAssumptions)return state.customAssumptions;
+  return ASSUMPTIONS[state.assumptions]||ASSUMPTIONS.moderate;
+}
+function project(opts){
+  opts=opts||{};
+  const profile=opts.profile||state.profile;
+  const target=opts.target||state.target;
+  const adj=opts.adjustments||{};
+  const assumptions=adj.assumptions||opts.assumptions||getAssumptions();
+  const monR=Math.pow(1+assumptions.return,1/12)-1;
+  const incG=Math.pow(1+assumptions.incomeGrow,1/12)-1;
+  const expG=Math.pow(1+assumptions.expenseGrow,1/12)-1;
+  const growContrib = opts.growContrib!=null?opts.growContrib:(state.growContrib==true);
+  const startAge=profile.age;
+
+  let income  = adj.incomeSet!=null? adj.incomeSet : (profile.income+(adj.incomeDelta||0));
+  let expenses= adj.expenseSet!=null? adj.expenseSet : (profile.expenses+(adj.expenseDelta||0));
+  let contribution = profile.contrib||0;
+  if(adj.contribDelta)contribution+=adj.contribDelta;
+  if(adj.contribMult)contribution*=adj.contribMult;
+  let portfolio=profile.savings||0;
+  const pauses=adj.pauses||[];
+  const maxMonths=Math.max(12*(target.age-startAge),12*40);
+  const path=[]; let reachIndex=null; const targetVal=target.amount||0;
+  for(let m=0;m<maxMonths;m++){
+    const age=startAge+m/12;
+    const paused=pauses.some(p=>m>=p.start&&m<p.end);
+    if(!paused){
+      if(adj.incomeMult!=null)income*=adj.incomeMult; else income*=(1+incG);
+      if(adj.expenseMult!=null)expenses*=adj.expenseMult; else expenses*=(1+expG);
+      if(growContrib)contribution*=(1+incG);
+    }
+    portfolio=portfolio*(1+monR);
+    if(!paused)portfolio+=contribution;
+    const net=income-expenses;
+    if(reachIndex===null&&targetVal>0&&portfolio>=targetVal)reachIndex=m;
+    path.push({age,portfolio,income,expenses,net,contribution});
+  }
+  return {path,reachIndex,startAge,assumptions,maxMonths};
+}
+function firstAgeAt(proj,amt){for(const pt of proj.path){if(pt.portfolio>=amt)return pt.age;}return null;}
+function lastVal(proj){return proj.path[proj.path.length-1].portfolio;}
+function portfolioAtAge(proj,age){const i=Math.round((age-proj.startAge)*12);if(i<=0)return proj.path[0]?proj.path[0].portfolio:0;if(i>=proj.path.length)return lastVal(proj);return proj.path[i].portfolio;}
+function dateFor(age){const dt=new Date();dt.setFullYear(dt.getFullYear()+(age-state.profile.age));return dt;}
+function scenarioContrib(adj){adj=adj||{};let c=state.profile.contrib||0;if(adj.contribDelta)c+=adj.contribDelta;if(adj.contribMult)c*=adj.contribMult;return Math.max(0,c);}
+
+/* total monthly contribution needed to reach `amount` by `byAge` */
+function monthlyToReach(amount,byAge,assumptions){
+  assumptions=assumptions||getAssumptions();
+  const p=state.profile;const months=12*(byAge-p.age);if(months<=0)return amount;
+  const r=Math.pow(1+assumptions.return,1/12)-1;
+  const fvSavings=p.savings*Math.pow(1+r,months);
+  const needed=amount-fvSavings;if(needed<=0)return 0;
+  return needed*r/(Math.pow(1+r,months)-1);
+}
+function requiredMonthly(){return monthlyToReach(state.target.amount,state.target.age);}
+
+/* financial health check */
+function healthCheck(){
+  const p=state.profile;
+  const surplus=p.income-p.expenses;
+  const contribution=reachableContrib();
+  let level,msg;
+  if(surplus<=0&&contribution>0){level='bad';msg='Unsustainable — you currently have no monthly surplus, but a contribution is planned.';}
+  else if(surplus<=0){level='ok';msg='No surplus and no contribution — nothing is projected to be added.';}
+  else{
+    const ratio=contribution/surplus;
+    if(ratio<=0.75){level='ok';msg='Sustainable — your planned contribution is below your available monthly surplus.';}
+    else if(ratio<=1.0){level='warn';msg='Tight — your contribution uses most of your available monthly surplus.';}
+    else{level='bad';msg='Unsustainable — your planned contribution is higher than your estimated surplus.';}
+  }
+  return {surplus,contribution,level,msg,ratio:surplus>0?contribution/surplus:null};
+}
+function reachableContrib(){return scenarioContrib(activeScenario&&activeScenario.adjustments);}
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+const GOAL_OPTS=[
+  {k:"Build savings",i:"💰"},{k:"Start investing",i:"📈"},{k:"Study abroad",i:"🎓"},
+  {k:"Move to another country",i:"🌍"},{k:"Plan a career",i:"💼"},{k:"Reach $10,000",i:"🎯"},
+  {k:"Buy a house",i:"🏠"},{k:"Buy a car",i:"🚗"},{k:"Emergency fund",i:"🛟"},
+  {k:"Reach $50,000",i:"🎯"},{k:"Reach $100,000",i:"🎯"},{k:"Retirement",i:"🌅"}
+];
+function buildChips(){
+  $('#ob-countries').innerHTML=Object.keys(COUNTRIES).map(c=>`<button class="chip" data-c="${c}">${COUNTRIES[c].flag} ${c}</button>`).join('');
+  $('#ob-goals').innerHTML=GOAL_OPTS.map(g=>`<button class="chip" data-g="${g.k}">${g.i} ${g.k}</button>`).join('');
+  $('#ob-countries').querySelectorAll('.chip').forEach(b=>{const c=b.dataset.c;if(obSelCountries.has(c))b.classList.add('on');b.onclick=()=>{b.classList.toggle('on');if(obSelCountries.has(c))obSelCountries.delete(c);else obSelCountries.add(c);};});
+  $('#ob-goals').querySelectorAll('.chip').forEach(b=>{const k=b.dataset.g;if(obGoals.has(k))b.classList.add('on');b.onclick=()=>{b.classList.toggle('on');if(obGoals.has(k))obGoals.delete(k);else obGoals.add(k);};});
+}
+function obShow(i){
+  obStep=i;
+  document.querySelectorAll('.ob-step').forEach((el,ix)=>el.classList.toggle('active',ix===i));
+  $('#obprogress').style.width=(((i+1)/6)*100)+'%';
+  $('#ob-back').style.display=i===0?'none':'';
+  const last=i===5;
+  $('#ob-next').style.display=last?'none':'';
+  $('#ob-finish').style.display=last?'':'none';
+  $('#ob-skip').style.display=i===0?'':'none';
+}
+$('#ob-back').onclick=()=>obShow(obStep-1);
+$('#ob-next').onclick=()=>{
+  if(obStep===0){if(!$('#ob-age').value||!$('#ob-country').value){toast('Age and country are required');return;}}
+  if(obStep===1){if(!$('#ob-income').value){toast('Enter a monthly income');return;}}
+  obShow(obStep+1);
+};
+$('#ob-finish').onclick=finishOnboarding;
+$('#ob-skip').onclick=()=>{state.onboarded=true;persist();boot();};
+function num(v){const n=parseFloat(v);return isNaN(n)?0:Math.max(0,n);}
+function finishOnboarding(){
+  const p=state.profile;
+  p.age=num($('#ob-age').value)||21;p.country=$('#ob-country').value||'United States';
+  p.city=$('#ob-city').value||'';p.income=num($('#ob-income').value);p.expenses=num($('#ob-expenses').value);
+  p.savings=num($('#ob-savings').value);p.contrib=num($('#ob-contrib').value);
+  p.status=$('#ob-status').value;p.career=$('#ob-career').value||'';
+  const g=[];
+  if(obGoals.has('Emergency fund'))g.push({id:'a',name:'Emergency fund',cost:6000,reach:p.age+2,priority:'High',icon:'🛟'});
+  if(obGoals.has('Study abroad'))g.push({id:'b',name:'Study abroad / travel',cost:8000,reach:p.age+3,priority:'Medium',icon:'✈️'});
+  if(obGoals.has('Buy a car'))g.push({id:'c',name:'Buy a car',cost:15000,reach:p.age+5,priority:'Medium',icon:'🚗'});
+  if(obGoals.has('Buy a house'))g.push({id:'d',name:'House down payment',cost:40000,reach:p.age+9,priority:'Medium',icon:'🏠'});
+  if(obGoals.has('Reach $10,000'))g.push({id:'e',name:'Reach $10,000',cost:10000,reach:p.age+2,priority:'High',icon:'🎯'});
+  if(obGoals.has('Reach $50,000'))g.push({id:'f',name:'Reach $50,000',cost:50000,reach:p.age+6,priority:'High',icon:'🎯'});
+  if(obGoals.has('Reach $100,000'))g.push({id:'h',name:'Reach $100,000',cost:100000,reach:p.age+9,priority:'High',icon:'🎯'});
+  if(obGoals.has('Retirement'))g.push({id:'i',name:'Retirement',cost:1000000,reach:p.age+35,priority:'Low',icon:'🌅'});
+  state.goals=g.length?g:JSON.parse(JSON.stringify(defGoals));
+  const top=state.goals.slice().sort((a,b)=>b.cost-a.cost)[0];
+  state.target={name:top?top.name:'Reach $50,000',amount:top?top.cost:50000,age:p.age+9};
+  const tAmt=num($('#ob-target').value),tAge=num($('#ob-target-age').value);
+  if(tAmt>0)state.target.amount=tAmt;
+  if(tAge>0)state.target.age=tAge;
+  state.target.name='Reach '+money(state.target.amount);
+  state.interestCountries=[...obSelCountries];
+  state.onboarded=true;persist();boot();
+}
+
+/* ============================================================
+   BOOT / NAV / THEME / CURRENCY
+   ============================================================ */
+function boot(){
+  document.getElementById&&document.getElementById('splash').classList.add('gone');
+  if(!state.onboarded){
+    $('#app').style.display='block';$('#main').style.display='none';
+    $('#onboarding').classList.add('active');buildChips();obShow(0);
+  }else{
+    $('#app').style.display='block';$('#main').style.display='block';
+    $('#onboarding').classList.remove('active');applyTheme();renderAll();onReturnFromCheckout();
+  }
+}
+function renderAll(){renderHome();renderRoadmap();renderGoals();renderScenarios();renderProfile();}
+document.querySelectorAll('nav a').forEach(a=>a.onclick=e=>{
+  e.preventDefault();
+  document.querySelectorAll('nav a').forEach(x=>x.classList.remove('on'));a.classList.add('on');
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  $('#view-'+a.dataset.v).classList.add('active');
+  if(a.dataset.v==='roadmap')renderRoadmap();
+  if(a.dataset.v==='scenarios')renderScenarios();
+  if(a.dataset.v==='goals')renderGoals();
+  window.scrollTo(0,0);
+});
+function applyTheme(){document.body.dataset.theme=state.theme;$('#theme-toggle').textContent=state.theme==='dark'?'☀️':'🌙';const t=$('#prof-theme');if(t)t.classList.toggle('on',state.theme==='dark');}
+function toggleTheme(){state.theme=state.theme==='dark'?'light':'dark';persist();applyTheme();}
+$('#theme-toggle').onclick=toggleTheme;
+function toggleGrow(){state.growContrib=!state.growContrib;persist();renderProfile();renderAll();toast(state.growContrib?'Contributions grow with income':'Contributions stay constant');}
+function setCurrency(c){state.currency=c;persist();renderProfile();renderAll();}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* ============================================================
+   HOME  (hero, snapshot, health, chart, transparency, quick)
+   ============================================================ */
+function renderHome(){
+  const p=state.profile,t=state.target,base=project({});
+  const reachAge=base.reachIndex!==null?p.age+base.reachIndex/12:null;
+  const pct=Math.min(100,(p.savings/t.amount)*100);
+  const req=requiredMonthly();
+  const hc=healthCheck();
+  const hero=$('#home-hero');
+  hero.innerHTML=`
+    <div class="tag">🎯 Main goal</div>
+    <h3>${t.name} · ${money(t.amount)}</h3>
+    <div class="est">${reachAge!==null?`Reaching it ≈ age ${Math.floor(reachAge)} (${dte(dateFor(reachAge))})`:`On your current path you don't reach it by age ${t.age} — try a scenario.`}</div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="meta"><span>${money(p.savings)} saved</span><span>${pct.toFixed(0)}% of goal</span></div>
+    <div class="kpi-msg">Required monthly contribution to reach ${money(t.amount)} by age ${t.age}: <b>${money(req)}</b></div>
+    <button class="btn hero-btn" onclick="openEditGoal()">Edit main goal</button>`;
+  const net=p.income-p.expenses;
+  $('#home-snapshot').innerHTML=[
+    ['Monthly income',money(p.income),''],['Monthly expenses',money(p.expenses),''],
+    ['Current savings',money(p.savings),''],['Planned contribution',money(p.contrib),'']
+  ].map(r=>`<div class="card metric"><div class="lbl">${r[0]}</div><div class="val">${r[1]}</div><div class="sub">${r[2]}</div></div>`).join('')
+  +`<div class="card metric ${net>=0?'good':'bad'}"><div class="lbl">Monthly surplus</div><div class="val">${net>=0?'+':''}${money(net)}</div><div class="sub">income − expenses</div></div>`;
+  // financial health
+  $('#home-health').innerHTML=`
+    <div class="health-row"><span class="hl">Monthly income</span><span class="hv">${money(p.income)}</span></div>
+    <div class="health-row"><span class="hl">Monthly expenses</span><span class="hv">${money(p.expenses)}</span></div>
+    <div class="health-row"><span class="hl">Potential monthly surplus</span><span class="hv">${money(net)}</span></div>
+    <div class="health-row"><span class="hl">Planned monthly contribution</span><span class="hv">${money(hc.contribution)}</span></div>
+    <div class="health-badge ${hc.level==='ok'?'ok':hc.level==='warn'?'warn':'bad'}">${hc.level==='ok'?'🟢':hc.level==='warn'?'🟡':'🔴'} ${hc.level==='ok'?'Sustainable':hc.level==='warn'?'Tight':'Unsustainable'}</div>
+    <p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">${hc.msg}</p>`;
+  drawHomeChart(base);
+  const qs=[
+    {id:'s_inv',n:'Invest $100 more/mo',d:'+$100/mo contribution'},
+    {id:'s_exp',n:'Cut expenses 20%',d:'Lower living costs'},
+    {id:'s_sal',n:'Salary +$500',d:'+$500/mo income'}
+  ];
+  $('#home-quick-scenarios').innerHTML=qs.map(s=>`<div class="scenario" onclick="applyScenario('${s.id}')"><div class="s-name">${s.n}</div><div class="s-desc">${s.d}</div></div>`).join('');
+  // transparency grid
+  const as=getAssumptions();
+  $('#assum-grid').innerHTML=`
+    <div><div class="k">Expected annual return</div><div class="v">${(as.return*100).toFixed(1)}%</div></div>
+    <div><div class="k">Monthly contribution</div><div class="v">${money(hc.contribution)}</div></div>
+    <div><div class="k">Projection period</div><div class="v">to age ${Math.floor(p.age+base.path.length/12)}</div></div>
+    <div><div class="k">Inflation assumption</div><div class="v">${(as.inflation*100).toFixed(1)}%</div></div>
+    <div><div class="k">Income growth</div><div class="v">${(as.incomeGrow*100).toFixed(1)}%</div></div>
+    <div><div class="k">Invest more as income grows</div><div class="v">${state.growContrib?'On':'Off'}</div></div>`;
+  $('#main-goal-val').textContent=money(t.amount)+' · age '+t.age;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function drawHomeChart(base){
+  const c=$('#home-chart');if(!c||!c.getContext)return;const ctx=c.getContext('2d');
+  const alt=activeScenario?project({adjustments:activeScenario.adjustments}):null;
+  const series=[base.path.map(x=>x.portfolio)];if(alt)series.push(alt.path.map(x=>x.portfolio));
+  const maxV=Math.max(...series[0],...(series[1]||[]),state.target.amount);
+  const n=base.path.length,w=c.width,h=c.height,padL=46,padB=22,padT=12;
+  ctx.clearRect(0,0,w,h);
+  const colors=['#6d5df6','#9aa0b4'];
+  const mutedC=getComputedStyle(document.body).getPropertyValue('--muted');
+  ctx.fillStyle=mutedC;
+  for(let g=0;g<=4;g++){const y=padT+(h-padT-padB)*(g/4);ctx.strokeStyle='rgba(120,120,160,.15)';ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-6,y);ctx.stroke();ctx.fillText(shortNum(maxV*(1-g/4)),4,y+3);}
+  const a0=base.startAge,aN=base.startAge+n/12;
+  ctx.fillText('age '+Math.floor(a0),padL,h-6);ctx.fillText('age '+Math.floor((a0+aN)/2),w/2-16,h-6);ctx.fillText('age '+Math.floor(aN),w-52,h-6);
+  series.forEach((s,si)=>{
+    ctx.beginPath();
+    for(let i=0;i<s.length;i++){const x=padL+(i/Math.max(1,n-1))*(w-padL-6);const y=padT+(h-padT-padB)*(1-Math.min(1,s[i]/maxV));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+    ctx.strokeStyle=colors[si];ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.stroke();
+    ctx.lineTo(w-6,h-padB);ctx.lineTo(padL,h-padB);ctx.closePath();ctx.globalAlpha=.12;ctx.fillStyle=colors[si];ctx.fill();ctx.globalAlpha=1;
+  });
+  const tAge=state.target.age,tAmt=state.target.amount;
+  const xG=padL+((tAge-a0)*12/Math.max(1,n-1))*(w-padL-6);
+  const yG=padT+(h-padT-padB)*(1-tAmt/maxV);
+  if(tAmt<=maxV){ctx.strokeStyle='#3ec6ff';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(xG,padT);ctx.lineTo(xG,h-padB);ctx.stroke();ctx.setLineDash([]);}
+}
+
+/* ============================================================
+   ROADMAP
+   ============================================================ */
+function renderRoadmap(){
+  const p=state.profile,proj=project({});
+  const reachAge=proj.reachIndex!==null?p.age+proj.reachIndex/12:null;
+  const ms=[];
+  [10000,25000,50000,100000,250000].forEach(amt=>{const age=firstAgeAt(proj,amt);if(age!==null&&age<=Math.max(p.age+20,state.target.age))ms.push({age,name:`Reach ${money(amt)}`,amt});});
+  state.goals.forEach(g=>{const age=firstAgeAt(proj,g.cost);if(age!==null&&age<=g.reach+3)ms.push({age,name:g.name+' (goal)',amt:g.cost});});
+  if(p.status==='student')ms.push({age:p.age+1,name:'Advance education',amt:null});
+  if(p.career)ms.push({age:p.age+2,name:'Career in '+p.career,amt:null});
+  if(reachAge!==null)ms.push({age:reachAge,name:'Reach main goal '+money(state.target.amount),amt:state.target.amount});
+  ms.sort((a,b)=>a.age-b.age);
+  const ded=[];ms.forEach(m=>{const l=ded[ded.length-1];if(l&&Math.abs(l.age-m.age)<0.5){if((m.amt||0)>(l.amt||0))l.amt=m.amt;}else ded.push(m);});
+  const now=p.age;
+  $('#roadmap-list').innerHTML=ded.map(m=>`
+    <div class="tl-item ${m.age<=now?'done':''}" onclick="openAssistant('How can I reach ${m.amt?money(m.amt)+' by age '+Math.floor(m.age):'my next milestone'}?')">
+      <div class="tl-card"><div class="age">≈ age ${Math.floor(m.age)} · ${dte(dateFor(m.age))}</div>
+      <div class="name">${m.name}</div><div class="amt">${m.amt?money(m.amt)+' portfolio':'Life milestone'}</div></div>
+    </div>`).join('');
+  if(!ded.length)$('#roadmap-list').innerHTML='<h2 class="empty">Set a target in onboarding to build your timeline.</h2>';
+}
+
+/* ============================================================
+   GOALS (+ realistic on-track system + edit/delete)
+   ============================================================ */
+function goalStatus(proj,g){
+  const age=firstAgeAt(proj,g.cost);
+  if(age!==null&&age<=g.reach)return {level:'green',icon:'🟢',text:'On track · est. age '+Math.floor(age)};
+  const needed=monthlyToReach(g.cost,g.reach);
+  const extra=Math.max(0,needed-state.profile.contrib);
+  const p=state.profile;const surplus=Math.max(0,p.income-p.expenses);
+  const feasible=needed<=p.contrib+surplus*0.9;
+  if(feasible)return {level:'yellow',icon:'🟡',text:'Possible with adjustments · ≈'+money(extra)+'/mo more (est)'};
+  return {level:'red',icon:'🔴',text:'Currently unlikely · ≈'+money(extra)+'/mo more needed (est)'};
+}
+function renderGoals(){
+  const p=state.profile,proj=project({});
+  const el=$('#goals-list');
+  el.innerHTML=state.goals.map(g=>{
+    const st=goalStatus(proj,g);
+    const bg=['#ff7ab8','#6f8bff','#3ec6ff','#ffb34d','#34d399','#a78bfa'][hash(g.name)%6]+'22';
+    return `<div class="card" style="margin-bottom:12px">
+      <div class="goal-item"><div class="goal-ico" style="background:${bg}">${g.icon}</div>
+      <div class="goal-body"><div class="gname">${esc(g.name)}</div><div class="gmeta">${money(g.cost)} · by age ${g.reach} <span class="mini-badge">${esc(g.priority)}</span></div></div>
+      <div class="goal-actions">
+        <button class="icon-btn" onclick="editGoal('${g.id}')" title="Edit">✏️</button>
+        <button class="icon-btn" onclick="deleteGoal('${g.id}')" title="Delete">🗑</button>
+      </div></div>
+      <div class="pill ${st.level}">${st.icon} ${st.text}</div>
+    </div>`;
+  }).join('');
+  if(!state.goals.length)el.innerHTML='<h2 class="empty">No goals yet — add one below.</h2>';
+}
+function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h);}
+function deleteGoal(id){if(!confirm('Delete this goal?'))return;state.goals=state.goals.filter(g=>g.id!==id);persist();renderGoals();toast('Goal deleted');}
+let selIcon='🎯';
+function openGoalModal(){
+  const isEdit=!!editGoalId;
+  const g=isEdit?state.goals.find(x=>x.id===editGoalId):null;
+  $('#goal-modal-body').innerHTML=`<h3 style="margin:0 0 16px">${isEdit?'Edit goal':'Add a goal'}</h3>
+    <div class="field"><label>Goal name</label><input id="gm-name" value="${g?esc(g.name):''}" placeholder="e.g. Study abroad"></div>
+    <div class="field"><label>Target cost</label><input type="number" id="gm-cost" value="${g?g.cost:''}" placeholder="e.g. 15000"></div>
+    <div class="inline-flex"><div class="field"><label>Target age</label><input type="number" id="gm-reach" value="${g?g.reach:''}" placeholder="e.g. 26"></div>
+    <div class="field"><label>Priority</label><select id="gm-prio">${['High','Medium','Low'].map(x=>`<option ${g&&g.priority===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+    <div class="field"><label>Icon</label><div class="chip-row" id="gm-ico">${['🎯','🏠','✈️','🚗','🛟','🎓','💼','💰','🌅'].map(i=>`<button class="chip ${g&&g.icon===i?'on':''}" data-i="${i}">${i}</button>`).join('')}</div></div>
+    <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-ghost" onclick="closeModal('modal-goal')">Cancel</button><button class="btn btn-primary" onclick="saveGoal()">${isEdit?'Save changes':'Save goal'}</button></div>`;
+  if(g)selIcon=g.icon;
+  document.querySelectorAll('#gm-ico .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#gm-ico .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');selIcon=c.dataset.i;});
+  openModal('modal-goal');
+}
+function saveGoal(){
+  const name=$('#gm-name').value;if(!name){toast('Add a goal name');return;}
+  const cost=num($('#gm-cost').value)||10000,reach=num($('#gm-reach').value)||state.profile.age+5,prio=$('#gm-prio').value;
+  if(editGoalId){const g=state.goals.find(x=>x.id===editGoalId);if(g){g.name=name;g.cost=cost;g.reach=reach;g.priority=prio;g.icon=selIcon;}editGoalId=null;toast('Goal updated');}
+  else{state.goals.push({id:'g'+Date.now(),name,cost,reach,priority:prio,icon:selIcon});toast('Goal added');}
+  persist();closeModal('modal-goal');renderGoals();toast(editGoalId?'Goal updated':'Goal added');
+}
+function editGoal(id){editGoalId=id;openGoalModal();}
+
+/* ============================================================
+   SCENARIOS
+   ============================================================ */
+const PRESETS=[
+  {id:'s_sal',icon:'💼',name:'Salary +$500/mo',desc:'Adds $500 to monthly income',a:{incomeDelta:500}},
+  {id:'s_inv',icon:'📈',name:'Invest $100 more/mo',desc:'Adds $100 to contribution',a:{contribDelta:100}},
+  {id:'s_exp',icon:'✂️',name:'Reduce expenses 20%',desc:'Lowers monthly living costs 20%',a:{expenseMult:0.8}},
+  {id:'s_aus',icon:'🌏',name:'Move to Australia',desc:'Uses Australia estimates',a:null},
+  {id:'s_gap',icon:'⏸️',name:'Career break 6 months',desc:'No saving for 6 months',a:{pauses:[{start:0,end:6}]}},
+  {id:'s_low',icon:'📉',name:'Lower returns',desc:'Conservative return assumption',a:{assumptions:'conservative'}},
+  {id:'s_high',icon:'📈',name:'Higher returns',desc:'Optimistic return assumption',a:{assumptions:'optimistic'}}
+];
+function renderScenarios(){
+  $('#seg-presets').innerHTML=PRESETS.map(s=>{
+    const on=activeScenario&&activeScenario.id===s.id;
+    if(s.id==='s_aus'){ const a=countryAdjust('Australia'); return `<div class="scenario ${on?'on':''}" onclick="applyScenario('${s.id}')"><div class="s-name">🌏 Move to Australia</div><div class="s-desc">Income ≈ ${money(a.incomeSet)}/mo · living ≈ ${money(a.expenseSet)}/mo (est)</div></div>`;}
+    return `<div class="scenario ${on?'on':''}" onclick="applyScenario('${s.id}')"><div class="s-name">${s.icon} ${s.name}</div><div class="s-desc">${s.desc}</div></div>`;
+  }).join('');
+  renderCustomSegment();renderCompare();
+}
+function countryAdjust(c){return {incomeSet:countryUsd(c,'salary'),expenseSet:countryUsd(c,'cost')};}
+function applyScenario(id){
+  const s=PRESETS.find(x=>x.id===id);if(!s)return;
+  const adjustments=s.a||(s.id==='s_aus'?countryAdjust('Australia'):{});
+  activeScenario={id,label:s.name||'Move to Australia',adjustments};
+  segShow('compare');renderAll();toast('Scenario applied');
+}
+function segShow(k){
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.seg===k));
+  $('#seg-presets').style.display=k==='presets'?'':'none';
+  $('#seg-custom').style.display=k==='custom'?'':'none';
+  $('#seg-compare').style.display=k==='compare'?'':'none';
+  if(k==='compare'||k==='custom')renderCompare();
+}
+function renderCustomSegment(){
+  $('#seg-custom').innerHTML=`<div class="card">
+    <div class="field"><label>Scenario name</label><input id="cs-name" placeholder="e.g. Big raise"></div>
+    <div class="field"><label>Extra income / month</label><input type="number" id="cs-income" value="0"></div>
+    <div class="field"><label>Extra contribution / month</label><input type="number" id="cs-contrib" value="0"></div>
+    <div class="inline-flex"><div class="field"><label>Income change %</label><input type="number" id="cs-incpct" value="0"></div>
+    <div class="field"><label>Expenses change %</label><input type="number" id="cs-exppct" value="0"></div></div>
+    <div class="field"><label>Pause saving (months)</label><input type="number" id="cs-pause" value="0"></div>
+    <button class="btn btn-primary" onclick="applyCustom()">Compare this scenario →</button></div>`;
+}
+function applyCustom(){
+  const incp=num($('#cs-incpct').value),expp=num($('#cs-exppct').value);
+  const adjustments={contribDelta:num($('#cs-contrib').value),incomeDelta:num($('#cs-income').value)};
+  if(incp)adjustments.incomeMult=1+incp/100;
+  if(expp)adjustments.expenseMult=1+expp/100;
+  if(num($('#cs-pause').value)>0)adjustments.pauses=[{start:0,end:num($('#cs-pause').value)}];
+  activeScenario={id:'c',label:$('#cs-name').value||'Custom scenario',adjustments};
+  segShow('compare');renderAll();
+}
+function statsFor(adjustments){
+  const p=state.profile;
+  const proj=project({adjustments});
+  const reachAge=proj.reachIndex!==null?p.age+proj.reachIndex/12:null;
+  const portAtTarget=portfolioAtAge(proj,state.target.age);
+  const contrib=proj.path[0]?proj.path[0].contribution:state.profile.contrib;
+  return {proj,reachAge,portAtTarget,contrib};
+}
+function renderCompare(){
+  const base=statsFor({});
+  const el=$('#seg-compare');
+  if(!activeScenario && savedScenarios.length===0){
+    el.innerHTML='<div class="note">Pick a preset, build a custom scenario, or open a country to compare paths. Save scenarios to stack up to three.</div>';
+    return;
+  }
+  // current vs active
+  let head='';
+  if(activeScenario){
+    const alt=statsFor(activeScenario.adjustments);
+    const gain=alt.portAtTarget-base.portAtTarget;
+    head=`<div class="note" style="margin-bottom:14px">Scenario: <b>${esc(activeScenario.label)}</b></div>
+      <div class="compare">
+        <div class="cmp"><h5>Current path</h5><div class="big">${money(base.portAtTarget)}</div><div class="det">at age ${state.target.age}</div></div>
+        <div class="cmp alt"><h5>Alternative</h5><div class="big">${money(alt.portAtTarget)}</div><div class="det">at age ${state.target.age}</div></div>
+        <div class="delta ${gain>=0?'up':'down'}">${gain>=0?'+':''}${money(gain)} vs current ${alt.reachAge&&base.reachAge?`· ${Math.round(base.reachAge-alt.reachAge)}yr to goal`:(alt.reachAge?`· goal ~age ${Math.floor(alt.reachAge)}`:'')}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="saveScenario()">💾 Save this scenario</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="clearScenario()">Reset</button>
+      </div>`;
+  }
+  // saved scenarios list + comparison table
+  const list=savedScenarios.map(s=>{
+    const st=statsFor(s.adjustments);
+    const d=st.portAtTarget-base.portAtTarget;
+    return `<div class="saved-scenario ${activeScenario&&activeScenario.id===s.id?'on':''}">
+      <div class="name">${esc(s.label)}</div>
+      <div class="ss-stats">
+        <span>Contribution ${money(st.contrib)}</span>
+        <span>Portfolio@${state.target.age}: ${money(st.portAtTarget)}</span>
+        <span>Goal age: ${st.reachAge?Math.floor(st.reachAge):'—'}</span>
+        <span>Δ ${d>=0?'+':''}${money(d)}</span>
+      </div>
+      <div class="ss-actions">
+        <button class="btn btn-ghost btn-sm" onclick="loadSavedScenario('${s.id}')">Show</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteSavedScenario('${s.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML=head+`<div class="section">Saved scenarios (${savedScenarios.length}/${isPremium()?10:3})</div>`+
+    (list||'<h2 class="empty">No saved scenarios yet. Build one and tap "Save this scenario".</h2>')+
+    (savedScenarios.length>1?`<div class="card" style="margin-top:12px"><table class="ttable">
+      <tr><th>Scenario</th><th>Contribution</th><th>Portfolio@age</th><th>Goal age</th><th>Δ</th></tr>
+      <tr><td>Current</td><td>${money(base.contrib)}</td><td>${money(base.portAtTarget)}</td><td>${base.reachAge?Math.floor(base.reachAge):'—'}</td><td>—</td></tr>
+      ${savedScenarios.map(s=>{const a=statsFor(s.adjustments);const d=a.portAtTarget-base.portAtTarget;return `<tr><td>${esc(s.label)}</td><td>${money(a.contrib)}</td><td>${money(a.portAtTarget)}</td><td>${a.reachAge?Math.floor(a.reachAge):'—'}</td><td>${d>=0?'+':''}${money(d)}</td></tr>`;}).join('')}
+    </table></div>`:'');
+}
+function saveScenario(){
+  if(!activeScenario){toast('Build a scenario first');return;}
+  const cap=isPremium()?10:3;
+  if(savedScenarios.length>=cap){toast(isPremium()?'You can save up to 10 scenarios':'Free plan: save up to 3 scenarios — upgrade for 10');return;}
+  savedScenarios.push({id:'s'+Date.now(),label:activeScenario.label,adjustments:activeScenario.adjustments});
+  state.savedScenarios=savedScenarios;persist();renderScenarios();toast('Scenario saved');
+}
+function loadSavedScenario(id){const s=savedScenarios.find(x=>x.id===id);if(!s)return;activeScenario={id,label:s.label,adjustments:s.adjustments};segShow('compare');renderAll();}
+function deleteSavedScenario(id){if(!confirm('Delete this saved scenario?'))return;savedScenarios=savedScenarios.filter(x=>x.id!==id);state.savedScenarios=savedScenarios;if(activeScenario&&activeScenario.id===id)activeScenario=null;persist();renderScenarios();}
+function clearScenario(){activeScenario=null;renderScenarios();renderHome();toast('Back to current path');}
+
+/* ============================================================
+   COUNTRIES (comparison + relocation)
+   ============================================================ */
+function reachAgeForCountry(c){
+  const proj=project({adjustments:countryAdjust(c)});
+  return proj.reachIndex!==null?state.profile.age+proj.reachIndex/12:null;
+}
+function renderCountries(){
+  const p=state.profile;
+  const baseProj=project({});
+  const curReach=baseProj.reachIndex!==null?p.age+baseProj.reachIndex/12:null;
+  const allRows=Object.keys(COUNTRIES).map(c=>{
+    const income=countryUsd(c,'salary'),cost=countryUsd(c,'cost'),surplus=income-cost;
+    const reach=reachAgeForCountry(c);
+    const impact=reach?`Move → goal ≈ age ${Math.floor(reach)}`:(curReach?`Move → beyond age ${p.age}`:'—');
+    const better=reach&&curReach&&reach<curReach;
+    return `<div class="country"><div class="flag">${COUNTRIES[c].flag}</div>
+      <div style="flex:1"><div class="c-name">${c}</div>
+      <div class="c-meta">Income ≈ ${money(income)}/mo · Living ≈ ${money(cost)}/mo</div>
+      <div class="c-meta">Surplus ≈ ${money(surplus)}/mo</div>
+      <div class="c-impact" style="color:${better?'var(--good)':'var(--muted)'}">🎯 ${esc(impact)}</div></div>
+      <button class="icon-btn" onclick="openRelocation('${c}')">🧭</button></div>`;
+  });
+  let rows=allRows,paywall='';
+  if(!isPremium()){rows=allRows.slice(0,3);paywall=`<div class="paywall-lock">🔒 <span>Comparing all ${allRows.length} countries is a <b>Premium</b> feature. </span><button class="btn btn-ghost btn-sm" onclick="openPricing()">Unlock countries</button></div>`;}
+  $('#countries-modal-body').innerHTML=`<h3 style="margin:0 0 6px">Compare countries</h3>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 12px">Sample estimates for planning only — not live data. Estimates use your current return/income-growth assumptions.</p>
+    <div class="note" style="margin-bottom:14px">Your current path: <b>${money(p.income)}</b> in / ${money(p.expenses)} out → surplus ${money(p.income-p.expenses)}/mo. Goal reach ≈ ${curReach?'age '+Math.floor(curReach):'beyond age '+p.age}.</div>
+    <div class="assum-grid" style="margin-bottom:14px" id="country-assum"></div>
+    ${rows.join('')}${paywall}`;
+  const as=getAssumptions();
+  $('#country-assum').innerHTML=`<div><div class="k">Return assumption</div><div class="v">${(as.return*100).toFixed(1)}%</div></div>
+    <div><div class="k">Income growth</div><div class="v">${(as.incomeGrow*100).toFixed(1)}%</div></div>
+    <div><div class="k">Expense growth</div><div class="v">${(as.expenseGrow*100).toFixed(1)}%</div></div>
+    <div><div class="k">Currency</div><div class="v">${curCode()}</div></div>`;
+  openModal('modal-countries');
+}
+function openCountries(){renderCountries();}
+function openRelocation(c){
+  relocateCountry=c;const adj=countryAdjust(c);
+  $('#relocate-modal-body').innerHTML=`<h3 style="margin:0 0 6px">Relocate to ${COUNTRIES[c].flag} ${c}</h3>
+    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px">Sample estimates converted to your base currency (${curCode()}). Edit to your own figures.</p>
+    <div class="field"><label>Estimated monthly salary</label><input type="number" id="rl-income" value="${Math.round(adj.incomeSet)}"></div>
+    <div class="field"><label>Estimated monthly living costs</label><input type="number" id="rl-cost" value="${Math.round(adj.expenseSet)}"></div>
+    <div class="note" style="margin-bottom:14px">Potential surplus here ≈ <b>${money(adj.incomeSet-adj.expenseSet)}/mo</b> before taxes.</div>
+    <div style="display:flex;gap:10px"><button class="btn btn-ghost" onclick="closeModal('modal-relocate')">Cancel</button><button class="btn btn-primary" onclick="applyRelocation()">Apply relocation scenario</button></div>`;
+  openModal('modal-relocate');
+}
+function applyRelocation(){
+  const income=num($('#rl-income').value),cost=num($('#rl-cost').value);
+  activeScenario={id:'r',label:'Move to '+relocateCountry,adjustments:{incomeSet:income,expenseSet:cost}};
+  closeModal('modal-relocate');segShow('compare');renderAll();toast('Relocation scenario applied');
+}
+
+/* ============================================================
+   PLANNING ASSISTANT (calculation-based, pluggable for real AI)
+   ============================================================ */
+const AI_BACKEND={connected:false,call:null}; // attach a real API here later
+function openAssistant(q){
+  $('#assistant').classList.add('open');
+  const age=state.target.age;
+  $('#assistant-quick').innerHTML=[
+    `Can I reach my goal by age ${age}?`,"How much more do I need to contribute?",
+    "Which scenario gets me to my goal fastest?","What if I move to another country?"
+  ].map(q=>`<button onclick="askAssistant('${q}')">${q}</button>`).join('')+
+  `<button onclick="askAssistant('Give me an action plan')">✨ Action plan (PRO)</button>`;
+  if(q)setTimeout(()=>askAssistant(q),80);
+  scrollAssistant();
+}
+function closeAssistant(){$('#assistant').classList.remove('open');}
+function scrollAssistant(){$('#assistant-scroll').scrollTop=99999;}
+function addMsg(role,html){$('#assistant-chat').insertAdjacentHTML('beforeend',`<div class="msg ${role}">${html}</div>`);scrollAssistant();}
+function askAssistant(q){
+  q=(q||$('#assistant-input').value).trim();if(!q)return;
+  $('#assistant-input').value='';
+  addMsg('user',esc(q));
+  if(/action plan|give me a plan|what should i do|advice/i.test(q)){
+    if(!isPremium()){addMsg('bot',`<small>That's a <b>Premium</b> feature. <span style="cursor:pointer;text-decoration:underline" onclick="openPricing()">Upgrade to unlock</span> an AI action plan.</small>`);return;}
+    addMsg('bot',premiumInsight()+'<small>Estimate based on current assumptions — not guaranteed.</small>');return;
+  }
+  const answer=AI_BACKEND.call?AI_BACKEND.call(q):calcAnswer(q);
+  addMsg('bot',answer+'<small>Estimate based on current data & assumptions — not guaranteed. Verify before big decisions.</small>');
+}
+function calcAnswer(q){
+  const p=state.profile,t=state.target,as=getAssumptions(),base=project({});
+  const lq=q.toLowerCase();
+  const bReach=base.reachIndex!==null?p.age+base.reachIndex/12:null;
+  if(lq.includes('goal')&&(lq.includes('reach')||lq.includes('can i')||lq.includes('possible'))){
+    const req=monthlyToReach(t.amount,t.age);const cur=state.profile.contrib;
+    return `On your current plan you ${bReach!==null?`reach <b>${money(t.amount)}</b> around <b>age ${Math.floor(bReach)}</b> (${dte(dateFor(bReach))}).`:`do <b>not</b> reach ${money(t.amount)} by age ${t.age}.`}<br>To hit it by age ${t.age}, you need about <b>${money(req)}/month</b> contributed. You currently plan <b>${money(cur)}/month</b> — ${req>cur?`so about <b>${money(req-cur)} more</b> per month.`:'that is enough.'}`;
+  }
+  if(lq.includes('how much')&&(lq.includes('more')||lq.includes('contribute'))){
+    const req=monthlyToReach(t.amount,t.age),cur=state.profile.contrib;
+    return `To reach <b>${money(t.amount)}</b> by age ${t.age} at a <b>${(getAssumptions().return*100).toFixed(0)}%</b> assumed return, plan ≈ <b>${money(req)}/month</b>. You plan <b>${money(cur)}/month</b> — that is ${req>cur?`<b>${money(req-cur)}/mo more</b>`:`already enough`}.`;
+  }
+  if(lq.includes('income increase')||lq.includes('income')||lq.includes('earn')){
+    const alt=project({adjustments:{incomeDelta:500}});
+    const gain=lastVal(alt)-lastVal(project({}));
+    return `If your income rose by <b>$500/month</b>:<br>• Estimated portfolio over the projection: +${money(gain)}.<br>• Goal reached ${altReachA(alt,base)}.<br><small>Only the <b>planned contribution</b> is invested — extra income helps your surplus and lets you raise it.</small>`;
+  }
+  if(lq.includes('which scenario')||lq.includes('fastest')||lq.includes('best')){
+    const cands=[{label:'Current path',adj:null},...savedScenarios.map(s=>({label:s.label,adj:s.adjustments}))];
+    let best=null;
+    cands.forEach(c=>{const a=statsFor(c.adj);if(!best||(a.reachAge&&(!best.reachAge||a.reachAge<best.reachAge)))best={label:c.label,reachAge:a.reachAge,port:a.portAtTarget};});
+    if(!best)return `Compare the saved scenarios to see which reaches your goal first.`;
+    return `Across saved scenarios, the one that reaches your goal ${best.reachAge?`soonest is <b>${esc(best.label)}</b> around age ${Math.floor(best.reachAge)}`:'fastest is '+esc(best.label)}.`;
+  }
+  if(lq.includes('move')||lq.includes('country')||lq.includes('abroad')){
+    const hit=Object.keys(COUNTRIES).find(c=>lq.includes(c.toLowerCase()));
+    const adj=countryAdjust(hit||'Australia');
+    const surplus=adj.incomeSet-adj.expenseSet;
+    return `If you moved to <b>${esc(hit||'Australia')}</b> (sample data):<br>Income ≈ <b>${money(adj.incomeSet)}/mo</b>, living ≈ <b>${money(adj.expenseSet)}/mo</b> → surplus ≈ <b>${money(surplus)}/mo</b>.<br>${surplus>=0?'That improves your ability to save.':''}<br><small>Estimates — verify with local data.</small>`;
+  }
+  return `Here's a quick estimate:<br>• Planned contribution: <b>${money(state.profile.contrib)}/month</b><br>• At <b>${(getAssumptions().return*100).toFixed(0)}%</b> assumed return you'd reach <b>${money(t.amount)}</b> ${bReach?`≈ age ${Math.floor(bReach)}`:'beyond age '+t.age}.<br><small>Under current assumptions — not guaranteed.</small>`;
+}
+function altReachA(alt,base){if(alt.reachIndex!==null&&base.reachIndex!==null){const d=base.reachIndex-alt.reachIndex;return d>0?`${d} months earlier`:d<0?`${-d} months later`:'on schedule';}return '';}
+
+/* ============================================================
+   PROFILE / GOAL EDIT / ASSUMPTIONS / MODALS
+   ============================================================ */
+function renderProfile(){
+  const as=state.assumptions==='custom'?'Custom':(state.assumptions.charAt(0).toUpperCase()+state.assumptions.slice(1));
+  $('#assume-val').textContent=as;
+  $('#main-goal-val').textContent=money(state.target.amount)+' · age '+state.target.age;
+  $('#cur-val').textContent=state.currency||'USD';
+  $('#cur-select').value=state.currency||'USD';
+  $('#grow-toggle').classList.toggle('on',!!state.growContrib);
+  $('#home-greet').textContent=state.profile.country?`Planning from ${state.profile.country}`:'Your Pathway';
+  const pr=isPremium();
+  const pb=$('#home-pro-badge');if(pb)pb.style.display=pr?'inline-block':'none';
+  const pc=$('#premium-card');if(pc){
+    if(pr)pc.innerHTML=`<div class="current-plan premium">🏆 ${planName()} plan</div>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0 4px">Unlocked: 10 saved scenarios, all countries, plan export, AI action plan.</p>
+      <button class="btn btn-ghost btn-sm" onclick="openPricing()">Manage plan</button>`;
+    else pc.innerHTML=`<div class="current-plan free">⚡ Free plan</div>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0 4px">Upgrade to save more scenarios, compare all countries, export your plan, and get an AI action plan.</p>
+      <button class="btn btn-primary" onclick="openPricing()">Upgrade to Premium</button>`;
+  }
+  applyTheme();
+}
+function openProfileModal(){
+  const p=state.profile;
+  $('#profile-modal-body').innerHTML=`<h3 style="margin:0 0 16px">Edit your profile</h3>
+    <div class="field"><label>Age</label><input type="number" id="pf-age" value="${p.age}"></div>
+    <div class="field"><label>Country</label><input id="pf-country" value="${esc(p.country)}"></div>
+    <div class="field"><label>City</label><input id="pf-city" value="${esc(p.city)}"></div>
+    <div class="inline-flex"><div class="field"><label>Monthly income</label><input type="number" id="pf-income" value="${p.income}"></div><div class="field"><label>Monthly expenses</label><input type="number" id="pf-expenses" value="${p.expenses}"></div></div>
+    <div class="inline-flex"><div class="field"><label>Savings</label><input type="number" id="pf-savings" value="${p.savings}"></div><div class="field"><label>Planned contribution /mo</label><input type="number" id="pf-contrib" value="${p.contrib}"></div></div>
+    <div class="field"><label>Status</label><select id="pf-status">${['student','employed','self-employed','unemployed','other'].map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <p class="pill-note">Numbers are stored in your base currency (${curCode()}) and shown in your display currency.</p>
+    <div style="display:flex;gap:10px"><button class="btn btn-ghost" onclick="closeModal('modal-profile')">Cancel</button><button class="btn btn-primary" onclick="saveProfile()">Save</button></div>`;
+  openModal('modal-profile');
+}
+function saveProfile(){
+  const p=state.profile;
+  p.age=num($('#pf-age').value)||p.age;
+  p.country=$('#pf-country').value||p.country;p.city=$('#pf-city').value;
+  p.income=num($('#pf-income').value);p.expenses=num($('#pf-expenses').value);
+  p.savings=num($('#pf-savings').value);p.contrib=num($('#pf-contrib').value);p.status=$('#pf-status').value;
+  persist();closeModal('modal-profile');renderAll();toast('Profile updated');
+}
+function openEditGoal(){
+  $('#target-modal-body').innerHTML=`<h3 style="margin:0 0 16px">Edit your main goal</h3>
+    <div class="field"><label>Goal name</label><input id="tg-name" value="${esc(state.target.name)}"></div>
+    <div class="inline-flex"><div class="field"><label>Target amount</label><input type="number" id="tg-amount" value="${state.target.amount}"></div>
+    <div class="field"><label>Target age</label><input type="number" id="tg-age" value="${state.target.age}"></div></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-ghost" onclick="closeModal('modal-target')">Cancel</button><button class="btn btn-primary" onclick="saveTarget()">Save goal</button></div>`;
+  openModal('modal-target');
+}
+function saveTarget(){
+  state.target.name=$('#tg-name').value||state.target.name;
+  state.target.amount=num($('#tg-amount').value)||state.target.amount;
+  state.target.age=num($('#tg-age').value)||state.target.age;
+  persist();closeModal('modal-target');renderAll();toast('Main goal updated');
+}
+function openAssumptions(){
+  const as=getAssumptions();
+  $('#assumptions-modal-body').innerHTML=`<h3 style="margin:0 0 6px">Projection assumptions</h3>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 12px">These feed every estimate. Lower = more conservative.</p>
+    <div class="assume-tab">${['conservative','moderate','optimistic'].map(a=>`<button class="${state.assumptions===a?'on':''}" onclick="setAssumption('${a}')">${a[0].toUpperCase()+a.slice(1)}</button>`).join('')}</div>
+    <div class="field"><label>Expected annual return %</label><input type="number" step="0.5" id="as-return" value="${(as.return*100).toFixed(1)}"></div>
+    <div class="inline-flex"><div class="field"><label>Income growth %</label><input type="number" id="as-inc" value="${(as.incomeGrow*100).toFixed(1)}"></div><div class="field"><label>Expense growth %</label><input type="number" id="as-exp" value="${(as.expenseGrow*100).toFixed(1)}"></div></div>
+    <div class="field"><label>Inflation %</label><input type="number" id="as-inf" value="${(as.inflation*100).toFixed(1)}"></div>
+    <p class="pill-note">Returns are assumed, never guaranteed. Lower returns mean slower growth.</p>
+    <button class="btn btn-primary" onclick="saveAssumptions()">Apply assumptions</button>`;
+  openModal('modal-assumptions');
+}
+function setAssumption(a){state.assumptions=a;if(a!=='custom')state.customAssumptions=null;persist();renderProfile();openAssumptions();renderAll();}
+function saveAssumptions(){
+  state.customAssumptions={return:num($('#as-return').value)/100,incomeGrow:num($('#as-inc').value)/100,expenseGrow:num($('#as-exp').value)/100,inflation:num($('#as-inf').value)/100};
+  state.assumptions='custom';persist();closeModal('modal-assumptions');renderProfile();renderAll();toast('Assumptions updated');
+}
+function openModal(id){$('#'+id).classList.add('open');}
+function closeModal(id){$('#'+id).classList.remove('open');}
+document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('open');});
+function resetAll(){if(confirm('Reset all data and start over?')){localStorage.removeItem('pathway_state');location.reload();}}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+boot();
+</script>
+</body>
+</html>
