@@ -253,4 +253,4 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 
 app.get('/api/health', (req, res) => res.json({ ok: true, provider: 'paypal', mode: MODE, configured: !!(CLIENT_ID && CLIENT_SECRET) }));
 
-app.listen(PORT, () => console.log('Pathway (PayPal ' + MODE + ') server on :' + PORT));
+module.exports = app;
